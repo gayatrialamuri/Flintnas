@@ -42,7 +42,7 @@ if [servicestate == "CRITICAL" && SERVICESTATETYPE == "HARD"]       #service goe
 	.set("target",192.168.1.163)
 	.set("type","exec")             
 	.set("username","root")
-	.set("password","Flint@01")
+	.set("password","nagiosxi")
 	.set("command","mount -t nfs -o nolock 192.168.1.121:/app1 /backup")     #mounting nas share
 	.set("timeout",60000)
 	.sync
