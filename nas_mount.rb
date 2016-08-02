@@ -39,7 +39,7 @@ manageenginerequestid=     @input.get("MANAGE_ENGINE_REQUESTID")
 
 if [servicestate == "CRITICAL" && SERVICESTATETYPE == "HARD"]       #service goes ‘Down’
   response=@call.connector("ssh")                                   #calling ssh connector   
-	.set("target",192.168.1.163)
+	.set("target",hostaddress)
 	.set("type","exec")             
 	.set("username","root")
 	.set("password","nagiosxi")
