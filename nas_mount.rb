@@ -22,7 +22,7 @@ manageenginerequestid=     @input.get("MANAGE_ENGINE_REQUESTID")
               .set("request-id",manageenginerequestid.to_i)
               .set("requester","Flint Operator")
               .set("subject","Flint attempted Restarting the Service")
-              .set("description","Flint will attempt to ssh to "+ hostaddress +" and restart "+ servicedesc)
+              .set("description","Flint will attempt to ssh to "+ hostaddress +" and mount "+ servicedesc)
               .set("requesttemplate","Unable to browse")
               .set("priority","Low")
               .set("site","-")
@@ -58,7 +58,7 @@ if [servicestate == "CRITICAL" && SERVICESTATETYPE == "HARD"]       #service goe
               .set("action","close-request")
               .set("request-id",manageenginerequestid.to_i)
               .set("close-accepted","Accepted")
-              .set("close-comment","Service restarted successfully")                               
+              .set("close-comment","disk mounted successfully")                               
               .sync
 
 
