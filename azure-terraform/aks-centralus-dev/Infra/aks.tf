@@ -40,13 +40,16 @@ default_node_pool {
 
   network_profile {
     network_plugin     = "azure"
-    network_policy     = "azure"
+    network_data_plane = "cilium"
+    network_policy     = "cilium"
     network_plugin_mode   = "overlay"
     service_cidr       = "10.1.0.0/16"
     dns_service_ip     = "10.1.0.10"
     pod_cidr           = "10.2.0.0/16"
   }
 
+  azure_policy_enabled = true
+  
   oms_agent {
     log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
   }
