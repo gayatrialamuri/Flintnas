@@ -16,12 +16,6 @@ variable "cert_manager_version" {
   default     = "v1.15.0"
 }
 
-variable "csi_driver_version" {
-  type        = string
-  description = "Helm chart version for Key Vault CSI Driver"
-  default     = "1.4.3"
-}
-
 variable "keda_version" {
   type        = string
   description = "Helm chart version for KEDA"

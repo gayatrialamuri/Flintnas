@@ -1,4 +1,4 @@
-name: Terraform AKS Infrastructure
+name: Terraform AKS Addons
 
 on:
   workflow_dispatch:
@@ -8,13 +8,13 @@ permissions:
   contents: read
 
 env:
-  TF_WORKING_DIR: infra
+  TF_WORKING_DIR: azure-terraform/aks-centralus-dev
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
 jobs:
   terraform:
-    name: Terraform Apply
+    name: Terraform Apply + Install CSI Provider
     runs-on: ubuntu-latest
 
     steps:
@@ -53,3 +53,30 @@ jobs:
         if: github.ref == 'refs/heads/main'
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform apply -auto-approve tfplan
+
+      - name: Read Terraform Outputs
+        id: tfout
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          echo "AKS_NAME=$(terraform output -raw aks_name)" >> $GITHUB_ENV
+          echo "AKS_RG=$(terraform output -raw resource_group_name)" >> $GITHUB_ENV
+
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials \
+            --resource-group $AKS_RG \
+            --name $AKS_NAME \
+            --overwrite-existing
+
+      - name: Install CSI Driver (Helm)
+        run: |
+          helm repo add csi https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+          helm repo update
+          helm upgrade --install csi-driver csi/secrets-store-csi-driver \
+            --namespace kube-system \
+            --version 1.4.3
+      
+
+      - name: Install Azure Key Vault CSI Provider
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/Azure/secrets-store-csi-driver-provider-azure/main/deploy/provider-azure-installer-linux.yaml
