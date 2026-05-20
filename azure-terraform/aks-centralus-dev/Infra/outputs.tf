@@ -14,21 +14,6 @@ output "kube_config" {
   sensitive   = true
 }
 
-output "agic_identity_principal_id" {
-  description = "Principal ID of the AGIC managed identity created by AKS addon"
-  value       = local.agic_principal_id
-}
-
-output "agic_identity_resource_id" {
-  description = "Resource ID of the AGIC managed identity discovered via data source"
-  value       = local.agic_identity.id
-}
-
-output "agic_identity_client_id" {
-  description = "Client ID of the AGIC managed identity"
-  value       = local.agic_identity.identity.client_id
-}
-
 output "agic_enabled" {
   description = "Indicates whether AGIC addon is enabled on the AKS cluster"
   value       = length(azurerm_kubernetes_cluster.aks.ingress_application_gateway) > 0
@@ -37,6 +22,11 @@ output "agic_enabled" {
 output "agic_gateway_id" {
   description = "Application Gateway ID used by AGIC addon"
   value       = azurerm_kubernetes_cluster.aks.ingress_application_gateway[0].gateway_id
+}
+
+output "agic_identity_client_id" {
+  description = "Client ID of the AKS AGIC addon identity"
+  value       = local.agic_client_id
 }
 
 output "kube_host" {

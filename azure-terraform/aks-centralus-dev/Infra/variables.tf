@@ -10,18 +10,6 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "system_node_count" {
-  description = "Node count for system node pool"
-  type        = number
-  default     = 1
-}
-
-variable "user_node_count" {
-  description = "Node count for each user node pool"
-  type        = number
-  default     = 1
-}
-
 variable "system_vm_size" {
   description = "VM size for system node pool"
   type        = string

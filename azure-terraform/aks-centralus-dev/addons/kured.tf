@@ -1,10 +1,8 @@
 resource "helm_release" "kured" {
 
   name             = "kured"
-  namespace        = "kured"
-  create_namespace = true
-
-  repository = "https://weaveworks.github.io/kured"
+  namespace        = "kube-system"
+  repository = "https://kubereboot.github.io/charts"
   chart      = "kured"
   version    = var.kured_version
 

@@ -1,7 +1,7 @@
 variable "kured_version" {
   type        = string
   description = "Helm chart version for Kured"
-  default     = "5.0.0"
+  default     = "5.4.4"
 }
 
 variable "prometheus_version" {
