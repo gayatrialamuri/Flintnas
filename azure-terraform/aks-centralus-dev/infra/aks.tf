@@ -26,7 +26,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     os_disk_size_gb  = var.os_disk_size_gb
     enable_auto_scaling = true
     min_count           = 1
-    max_count           = 3
+    max_count           = 1
   }
 
   identity {
