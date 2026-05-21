@@ -22,8 +22,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type                         = "VirtualMachineScaleSets"
     only_critical_addons_enabled = true
 
-    os_disk_type     = var.os_disk_type
-    os_disk_size_gb  = var.os_disk_size_gb
+    os_disk_type        = var.os_disk_type
+    os_disk_size_gb     = var.os_disk_size_gb
     enable_auto_scaling = true
     min_count           = 1
     max_count           = 1
@@ -34,13 +34,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   network_profile {
-    network_plugin       = "azure"
-    network_data_plane   = "cilium"
-    network_policy       = "cilium"
-    network_plugin_mode  = "overlay"
+    network_plugin      = "azure"
+    network_data_plane  = "cilium"
+    network_policy      = "cilium"
+    network_plugin_mode = "overlay"
     pod_cidr            = local.network.pod_cidr
     service_cidr        = local.network.service_cidr
-    dns_service_ip      = local.network.dns_service_ip    
+    dns_service_ip      = local.network.dns_service_ip
   }
 
   azure_policy_enabled = true
@@ -70,8 +70,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "userpool1" {
   vnet_subnet_id        = azurerm_subnet.aks_subnet_1.id
   mode                  = "User"
 
-  os_disk_type        = var.os_disk_type
-  os_disk_size_gb     = var.os_disk_size_gb
+  os_disk_type    = var.os_disk_type
+  os_disk_size_gb = var.os_disk_size_gb
 
   enable_auto_scaling = true
   min_count           = 1

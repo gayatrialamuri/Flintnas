@@ -14,14 +14,14 @@ resource "azurerm_application_gateway" "appgw" {
   resource_group_name = azurerm_resource_group.rg.name
 
   sku {
-    name     = "Standard_v2"   # or WAF_v2
+    name     = "Standard_v2" # or WAF_v2
     tier     = "Standard_v2"
     capacity = 1
   }
 
   ssl_policy {
-  policy_type = "Predefined"
-  policy_name = "AppGwSslPolicy20220101"
+    policy_type = "Predefined"
+    policy_name = "AppGwSslPolicy20220101"
   }
 
   gateway_ip_configuration {
