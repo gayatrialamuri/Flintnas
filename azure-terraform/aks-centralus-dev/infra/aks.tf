@@ -88,7 +88,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "userpool1" {
 #   name                  = "user2"
 #   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
 #   vm_size               = var.user_vm_size
-#   node_count            = var.user_node_count
 #   vnet_subnet_id        = azurerm_subnet.aks_subnet_2.id
 #   mode                  = "User"
 
@@ -110,7 +109,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "userpool1" {
 #   name                  = "user3"
 #   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
 #   vm_size               = var.user_vm_size
-#   node_count            = var.user_node_count
 #   vnet_subnet_id        = azurerm_subnet.aks_subnet_3.id
 #   mode                  = "User"
 
