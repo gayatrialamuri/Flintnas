@@ -12,7 +12,7 @@ dns_service_ip = "10.1.0.10"
 
 location        = "centralus"
 environment     = "dev"
-system_vm_size  = "Standard_DS2_v2"
-user_vm_size    = "Standard_DS2_v2"
+system_vm_size  = "Standard_B2pls_v2"
+user_vm_size    = "Standard_B2pls_v2"
 os_disk_type    = "Managed"
 os_disk_size_gb = 60
