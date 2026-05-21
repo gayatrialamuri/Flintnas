@@ -1,11 +1,3 @@
-#App Gateway Subnet
-resource "azurerm_subnet" "appgw_subnet" {
-  name                 = "snet-appgw"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.10.0/24"]
-}
-
 #PublicIp for App Gateway
 resource "azurerm_public_ip" "appgw_pip" {
   name                = "${local.base_name}-appgw-pip"

@@ -38,9 +38,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_data_plane   = "cilium"
     network_policy       = "cilium"
     network_plugin_mode  = "overlay"
-    service_cidr         = "10.1.0.0/16"
-    dns_service_ip       = "10.1.0.10"
-    pod_cidr             = "10.2.0.0/16"
+    pod_cidr            = local.network.pod_cidr
+    service_cidr        = local.network.service_cidr
+    dns_service_ip      = local.network.dns_service_ip    
   }
 
   azure_policy_enabled = true
