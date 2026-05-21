@@ -1,4 +1,4 @@
-name: Terraform AKS Addons
+name: Terraform AKS with Addons
 
 on:
   workflow_dispatch:
@@ -28,6 +28,16 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Install Azure CLI
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0    
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -35,7 +45,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init
+        run: terraform init -input=false
 
       - name: Terraform Fmt
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -47,12 +57,11 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -out=tfplan
+        run: terraform plan -input=false -out=tfplan
 
       - name: Terraform Apply
-        if: always()
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -input=false -auto-approve tfplan
 
       - name: Read Terraform Outputs
         id: tfout
@@ -74,8 +83,7 @@ jobs:
           helm repo update
           helm upgrade --install csi-driver csi/secrets-store-csi-driver \
             --namespace kube-system \
-            --version 1.4.3
-      
+            --version 1.4.3      
 
       - name: Install Azure Key Vault CSI Provider
         run: |
