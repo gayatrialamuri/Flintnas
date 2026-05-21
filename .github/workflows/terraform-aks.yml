@@ -95,4 +95,4 @@ jobs:
 
       - name: Install Azure Key Vault CSI Provider
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/Azure/secrets-store-csi-driver-provider-azure/main/deploy/provider-azure-installer-linux.yaml
+           kubectl apply -f https://raw.githubusercontent.com/Azure/secrets-store-csi-driver-provider-azure/main/deploy/install-provider-azure.yaml
