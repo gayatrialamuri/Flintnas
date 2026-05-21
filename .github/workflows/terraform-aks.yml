@@ -85,14 +85,10 @@ jobs:
             --name $AKS_NAME \
             --overwrite-existing
 
-      - name: Install CSI Driver (Helm)
+      - name: Install CSI Driver + Azure Provider
         run: |
           helm repo add csi https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
           helm repo update
-          helm upgrade --install csi-driver csi/secrets-store-csi-driver \
-            --namespace kube-system \
-            --version 1.4.3      
+          helm upgrade --install csi-driver csi/secrets-store-csi-driver --namespace kube-system --version 1.4.3
 
-      - name: Install Azure Key Vault CSI Provider
-        run: |
-           kubectl apply -f https://raw.githubusercontent.com/Azure/secrets-store-csi-driver-provider-azure/main/deploy/install-provider-azure.yaml
+
