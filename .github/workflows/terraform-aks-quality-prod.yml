@@ -68,17 +68,13 @@ jobs:
         run: tflint --recursive
 
         # 4. TFSEC
-      - name: Install tfsec
-        if: matrix.tool == 'tfsec'
-        run: |
-          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | bash
-
       - name: Run tfsec
         if: matrix.tool == 'tfsec'
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: tfsec .
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: ${{ env.TF_WORKING_DIR }}
 
-      # 5. Checkov
+       # 5. Checkov
       - name: Install Checkov
         if: matrix.tool == 'checkov'
         run: pip install checkov
