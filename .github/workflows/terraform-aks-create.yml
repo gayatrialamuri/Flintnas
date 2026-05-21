@@ -14,8 +14,6 @@ permissions:
 
 env:
   TF_WORKING_DIR: azure-terraform/aks-centralus-${{ github.event.inputs.environment }}
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
 jobs:
   terraform:
