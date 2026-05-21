@@ -32,6 +32,15 @@ jobs:
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
+      - name: Force Terraform to use OIDC (disable Azure CLI auth)
+        shell: pwsh
+        run: |
+          "ARM_USE_OIDC=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ARM_DISABLE_CLI_AUTH=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
