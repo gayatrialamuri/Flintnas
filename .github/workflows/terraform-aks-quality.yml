@@ -1,94 +1,83 @@
-name: Terraform AKS with Addons - Create
+name: Terraform Quality Checks
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to destroy (dev, stage, prod)"
+        required: true
+        default: "dev"
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - dev
+  #     - stage
+  #     - prod
 
 permissions:
   id-token: write
   contents: read
 
-env:
-  TF_WORKING_DIR: azure-terraform/aks-centralus-dev
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
 jobs:
-  terraform:
-    name: Terraform Apply + Install CSI Provider
+  terraform-quality:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        tool: [fmt, validate, tflint, tfsec, checkov]
+
+    env:
+      TF_WORKING_DIR: azure-terraform/aks-centralus-${{ github.event.inputs.environment }}
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Install Azure CLI
-        run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-      - name: Force Terraform to use OIDC (disable Azure CLI auth)
-        shell: pwsh
-        run: |
-          "ARM_USE_OIDC=true" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "ARM_DISABLE_CLI_AUTH=true" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: v3.14.0
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.9.0
-
-      - name: Terraform Init
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -input=false
-
+      # Terraform FMT (check only)
       - name: Terraform Fmt
+        if: matrix.tool == 'fmt'
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check -recursive
 
+      # 2. Terraform Validate
+      - name: Terraform Init
+        if: matrix.tool == 'validate'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -backend=false
+
       - name: Terraform Validate
+        if: matrix.tool == 'validate'
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
-      - name: Terraform Plan
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -input=false -out=tfplan
-
-      - name: Terraform Apply
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform apply -input=false -auto-approve tfplan
-
-      - name: Read Terraform Outputs
-        id: tfout
-        working-directory: ${{ env.TF_WORKING_DIR }}
+      # 3. TFLint
+      - name: Install tflint
+        if: matrix.tool == 'tflint'
         run: |
-          echo "AKS_NAME=$(terraform output -raw aks_name)" >> $GITHUB_ENV
-          echo "AKS_RG=$(terraform output -raw resource_group_name)" >> $GITHUB_ENV
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
-      - name: Get AKS Credentials
+      - name: Run tflint
+        if: matrix.tool == 'tflint'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: tflint --recursive
+
+        # 4. TFSEC
+      - name: Install tfsec
+        if: matrix.tool == 'tfsec'
         run: |
-          az aks get-credentials \
-            --resource-group $AKS_RG \
-            --name $AKS_NAME \
-            --overwrite-existing
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | bash
 
-      - name: Install CSI Driver + Azure Provider
-        run: |
-          helm repo add csi https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
-          helm repo update
-          helm upgrade --install csi-driver csi/secrets-store-csi-driver --namespace kube-system --version 1.4.3
+      - name: Run tfsec
+        if: matrix.tool == 'tfsec'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: tfsec .
 
+      # 5. Checkov
+      - name: Install Checkov
+        if: matrix.tool == 'checkov'
+        run: pip install checkov
 
+      - name: Run Checkov
+        if: matrix.tool == 'checkov'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: checkov -d .

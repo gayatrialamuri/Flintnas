@@ -2,6 +2,11 @@ name: Terraform AKS with Addons - Create
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to destroy (dev, stage, prod)"
+        required: true
+        default: "dev"
 
 permissions:
   id-token: write
