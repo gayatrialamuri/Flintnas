@@ -40,6 +40,13 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check -recursive | tee terraform-fmt-report.txt
 
+      - name: Upload FMT Report
+        if: matrix.tool == 'fmt'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-fmt-report
+          path: ${{ env.TF_WORKING_DIR }}/terraform-fmt-report.txt
+
       # 2. Terraform Validate
       - name: Terraform Init
         if: matrix.tool == 'validate'
@@ -52,6 +59,13 @@ jobs:
         continue-on-error: true
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate | tee terraform-validate-report.txt
+
+      - name: Upload Validate Report
+        if: matrix.tool == 'validate'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-validate-report
+          path: ${{ env.TF_WORKING_DIR }}/terraform-validate-report.txt
 
       # 3. TFLint
       - name: Install tflint
@@ -66,6 +80,13 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: tflint --recursive | tee tflint-report.txt
 
+      - name: Upload TFLint Report
+        if: matrix.tool == 'tflint'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tflint-report
+          path: ${{ env.TF_WORKING_DIR }}/tflint-report.txt
+
       # 4. TFSEC
       - name: Run tfsec
         if: matrix.tool == 'tfsec'
@@ -75,6 +96,13 @@ jobs:
           working_directory: ${{ env.TF_WORKING_DIR }}
           format: json
           output_file: tfsec-report.json
+
+      - name: Upload TFSEC Report
+        if: matrix.tool == 'tfsec'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfsec-report
+          path: tfsec-report.json
 
       # 5. Checkov
       - name: Install Checkov
@@ -88,14 +116,9 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: checkov -d . --quiet --soft-fail | tee checkov-report.txt
 
-      # Upload All Reports
-      - name: Upload Quality Reports
+      - name: Upload Checkov Report
+        if: matrix.tool == 'checkov'
         uses: actions/upload-artifact@v4
         with:
-          name: terraform-quality-reports-${{ github.event.inputs.environment }}
-          path: |
-            ${{ env.TF_WORKING_DIR }}/terraform-fmt-report.txt
-            ${{ env.TF_WORKING_DIR }}/terraform-validate-report.txt
-            ${{ env.TF_WORKING_DIR }}/tflint-report.txt
-            ${{ env.TF_WORKING_DIR }}/tfsec-report.json
-            ${{ env.TF_WORKING_DIR }}/checkov-report.txt
+          name: checkov-report
+          path: ${{ env.TF_WORKING_DIR }}/checkov-report.txt
