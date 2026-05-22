@@ -4,15 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment to destroy (dev, stage, prod)"
+        description: "Environment to check (dev, stage, prod)"
         required: true
         default: "dev"
-  # pull_request:
-  #   branches:
-  #     - main
-  #     - dev
-  #     - stage
-  #     - prod
 
 permissions:
   id-token: write
@@ -33,18 +27,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Setup Terraform
+      # Install Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
-                  
-      # Terraform FMT (check only)
+
+      # 1. Terraform FMT
       - name: Terraform Fmt
         if: matrix.tool == 'fmt'
         continue-on-error: true
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform fmt -check -recursive
+        run: terraform fmt -check -recursive | tee terraform-fmt-report.txt
 
       # 2. Terraform Validate
       - name: Terraform Init
@@ -57,7 +51,7 @@ jobs:
         if: matrix.tool == 'validate'
         continue-on-error: true
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform validate
+        run: terraform validate | tee terraform-validate-report.txt
 
       # 3. TFLint
       - name: Install tflint
@@ -70,17 +64,19 @@ jobs:
         if: matrix.tool == 'tflint'
         continue-on-error: true
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: tflint --recursive
+        run: tflint --recursive | tee tflint-report.txt
 
-        # 4. TFSEC
+      # 4. TFSEC
       - name: Run tfsec
         if: matrix.tool == 'tfsec'
         continue-on-error: true
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working_directory: ${{ env.TF_WORKING_DIR }}
+          format: json
+          output_file: tfsec-report.json
 
-       # 5. Checkov
+      # 5. Checkov
       - name: Install Checkov
         if: matrix.tool == 'checkov'
         continue-on-error: true
@@ -90,4 +86,16 @@ jobs:
         if: matrix.tool == 'checkov'
         continue-on-error: true
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: checkov -d . --quiet --soft-fail
+        run: checkov -d . --quiet --soft-fail | tee checkov-report.txt
+
+      # Upload All Reports
+      - name: Upload Quality Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-quality-reports-${{ github.event.inputs.environment }}
+          path: |
+            ${{ env.TF_WORKING_DIR }}/terraform-fmt-report.txt
+            ${{ env.TF_WORKING_DIR }}/terraform-validate-report.txt
+            ${{ env.TF_WORKING_DIR }}/tflint-report.txt
+            ${{ env.TF_WORKING_DIR }}/tfsec-report.json
+            ${{ env.TF_WORKING_DIR }}/checkov-report.txt
