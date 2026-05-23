@@ -8,34 +8,27 @@ data "databricks_spark_version" "latest_lts" {
 }
 
 resource "databricks_cluster" "single_node_dev" {
-  cluster_name            = var.cluster_name
+  cluster_name  = var.cluster_name
+  spark_version = data.databricks_spark_version.latest_lts.id
+  node_type_id  = data.databricks_node_type.smallest.id
+  kind          = "CLASSIC_PREVIEW"
 
-  # You can either use the data sources above or the explicit vars
-  spark_version           = data.databricks_spark_version.latest_lts.id
-  node_type_id            = data.databricks_node_type.smallest.id
+  # Configures Dedicated Mode for a Single User to bypass NO_ISOLATION
+  data_security_mode = "SINGLE_USER"
+  single_user_name   = "newsun_a@yahoo.com" # Required for SINGLE_USER mode
 
-  autotermination_minutes = var.cluster_autotermination_minutes
-  data_security_mode      = var.cluster_data_security_mode
-
-  # Single node magic
+  # Enforces a true Single-Node configuration (1 physical machine)
   is_single_node = true
   num_workers    = 0
 
-  # Optional but nice for dev
+  autotermination_minutes = var.cluster_autotermination_minutes
+
   spark_env_vars = {
     PYSPARK_PYTHON = "/databricks/python3/bin/python3"
   }
 
   custom_tags = {
-    "Environment" = "dev"
-    "ResourceClass" = "SingleNode"
+    Environment = "dev"
+    Owner       = "Surya"
   }
-}
-
-output "cluster_id" {
-  value = databricks_cluster.single_node_dev.id
-}
-
-output "cluster_url" {
-  value = databricks_cluster.single_node_dev.url
 }

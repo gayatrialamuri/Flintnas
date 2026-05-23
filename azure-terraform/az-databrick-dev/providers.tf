@@ -19,6 +19,6 @@ provider "azurerm" {
 
 # Workspace-level Databricks provider
 provider "databricks" {
-  host  = var.databricks_host   # e.g. https://<workspace-url>.azuredatabricks.net
-  token = var.databricks_token  # PAT from the workspace
+  host  = var.databricks_host  # e.g. https://<workspace-url>.azuredatabricks.net
+  token = var.databricks_token # PAT from the workspace
 }

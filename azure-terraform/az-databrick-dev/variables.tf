@@ -37,5 +37,5 @@ variable "cluster_node_type" {
   description = "Node type for driver/worker."
   type        = string
   # For free/cheap: pick a small SKU available in your region
-  default     = "Standard_DS3_v2"
+  default = "Standard_DS3_v2"
 }
