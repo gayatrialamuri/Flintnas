@@ -1,5 +1,4 @@
 resource "helm_release" "kured" {
-
   name       = "kured"
   namespace  = "kube-system"
   repository = "https://kubereboot.github.io/charts"

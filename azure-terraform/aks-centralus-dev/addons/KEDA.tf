@@ -1,5 +1,4 @@
 resource "helm_release" "keda" {
-
   name             = "keda"
   namespace        = "keda"
   create_namespace = true

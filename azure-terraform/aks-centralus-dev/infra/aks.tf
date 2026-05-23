@@ -61,7 +61,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
-
 # User node pool in subnet 1
 resource "azurerm_kubernetes_cluster_node_pool" "userpool1" {
   name                  = "user1"
