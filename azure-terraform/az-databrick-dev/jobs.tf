@@ -4,8 +4,8 @@ resource "databricks_job" "run_notebook" {
   task {
     task_key = "sparkjob_task"
 
-    notebook_task {
-      notebook_path = "/Repos/newsun_a@yahoo.com/Flintnas/notebooks/test-sparkjob.py"
+    spark_python_task {
+      python_file = "/Repos/newsun_a@yahoo.com/dev-repo/notebooks/test-sparkjob.py"
     }
 
     existing_cluster_id = databricks_cluster.single_node_dev.id

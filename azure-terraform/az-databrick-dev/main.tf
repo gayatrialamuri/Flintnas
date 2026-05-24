@@ -1,34 +1,37 @@
-# Optional: dynamically pick smallest node type & latest LTS
-data "databricks_node_type" "smallest" {
-  local_disk = true
+resource "azurerm_resource_group" "databricks_rg" {
+  name     = "rg-databricks-dev"
+  location = "centralus"
 }
 
-data "databricks_spark_version" "latest_lts" {
-  long_term_support = true
+# Databricks workspace
+resource "azurerm_databricks_workspace" "this" {
+  name                = "dbw-flintnas-dev"
+  resource_group_name = azurerm_resource_group.databricks_rg.name
+  location            = azurerm_resource_group.databricks_rg.location
+  sku                 = "premium"
 }
 
-resource "databricks_cluster" "single_node_dev" {
-  cluster_name  = var.cluster_name
-  spark_version = data.databricks_spark_version.latest_lts.id
-  node_type_id  = data.databricks_node_type.smallest.id
-  kind          = "CLASSIC_PREVIEW"
+# Managed Identity for jobs
+resource "azurerm_user_assigned_identity" "databricks_job_mi" {
+  name                = "dbrx-job-mi"
+  resource_group_name = azurerm_resource_group.databricks_rg.name
+  location            = azurerm_resource_group.databricks_rg.location
+}
 
-  # Configures Dedicated Mode for a Single User to bypass NO_ISOLATION
-  data_security_mode = "SINGLE_USER"
-  single_user_name   = "newsun_a@yahoo.com" # Required for SINGLE_USER mode
+# ADLS + Key Vault + Secret Scope module
+module "data_platform" {
+  source = "./modules/data-platform"
 
-  # Enforces a true Single-Node configuration (1 physical machine)
-  is_single_node = true
-  num_workers    = 0
+  resource_group_name = azurerm_resource_group.databricks_rg.name
+  location            = azurerm_resource_group.databricks_rg.location
 
-  autotermination_minutes = var.cluster_autotermination_minutes
+  storage_account_name = var.storage_account_name
+  key_vault_name       = var.key_vault_name
 
-  spark_env_vars = {
-    PYSPARK_PYTHON = "/databricks/python3/bin/python3"
-  }
+  raw_container_name     = "raw"
+  curated_container_name = "curated"
 
-  custom_tags = {
-    Environment = "dev"
-    Owner       = "Surya"
-  }
+  databricks_workspace_url = azurerm_databricks_workspace.this.workspace_url
+
+  secrets_reader_object_id = azurerm_user_assigned_identity.databricks_job_mi.principal_id
 }

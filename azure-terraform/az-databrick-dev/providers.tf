@@ -8,7 +8,7 @@ terraform {
     }
     databricks = {
       source  = "databricks/databricks"
-      version = "~> 1.30"
+      version = "~> 1.50"
     }
   }
 }
@@ -19,6 +19,9 @@ provider "azurerm" {
 
 # Workspace-level Databricks provider
 provider "databricks" {
-  host  = var.databricks_host  # e.g. https://<workspace-url>.azuredatabricks.net
-  token = var.databricks_token # PAT from the workspace
+  host                        = var.databricks_host
+  azure_workspace_resource_id = azurerm_databricks_workspace.this.id
+  azure_client_id             = var.client_id
+  azure_client_secret         = var.client_secret
+  azure_tenant_id             = var.tenant_id
 }

@@ -39,3 +39,30 @@ variable "cluster_node_type" {
   # For free/cheap: pick a small SKU available in your region
   default = "Standard_DS3_v2"
 }
+
+variable "client_id" {
+  description = "Azure AD client ID"
+  type        = string
+}
+
+variable "client_secret" {
+  description = "Azure AD client secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "tenant_id" {
+  description = "Azure AD tenant ID"
+  type        = string
+}
+
+variable "storage_account_name" {
+  description = "Azure Storage account name"
+  type        = string
+  default     = "devadls"
+}
+
+variable "key_vault_name" {
+  description = "Name of the Key Vault."
+  type        = string
+}
