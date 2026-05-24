@@ -1,39 +1,39 @@
 variable "resource_group_name" {
-  type = string
+  description = "Resource group containing the data platform resources"
+  type        = string
 }
 
 variable "location" {
-  type = string
+  description = "Azure region"
+  type        = string
 }
 
 variable "storage_account_name" {
-  type = string
-}
-
-variable "raw_container_name" {
-  type    = string
-  default = "raw"
-}
-
-variable "curated_container_name" {
-  type    = string
-  default = "curated"
+  description = "Name of the ADLS Gen2 storage account"
+  type        = string
 }
 
 variable "key_vault_name" {
-  type = string
+  description = "Name of the Azure Key Vault"
+  type        = string
 }
 
-variable "databricks_workspace_url" {
-  type = string
+variable "raw_container_name" {
+  description = "Raw container name"
+  type        = string
+}
+
+variable "curated_container_name" {
+  description = "Curated container name"
+  type        = string
+}
+
+variable "semantic_container_name" {
+  description = "Semantic container name"
+  type        = string
 }
 
 variable "secrets_reader_object_id" {
+  description = "Object ID of identity that reads secrets (Databricks Job MI)"
   type        = string
-  description = "Object ID of the Managed Identity used by Databricks Jobs"
-}
-
-variable "tags" {
-  type    = map(string)
-  default = {}
 }

@@ -1,8 +1,9 @@
-# Optional: dynamically pick smallest node type & latest LTS
+# Pick smallest node type with local disk
 data "databricks_node_type" "smallest" {
   local_disk = true
 }
 
+# Pick latest LTS Spark version
 data "databricks_spark_version" "latest_lts" {
   long_term_support = true
 }
@@ -11,15 +12,16 @@ resource "databricks_cluster" "single_node_dev" {
   cluster_name  = var.cluster_name
   spark_version = data.databricks_spark_version.latest_lts.id
   node_type_id  = data.databricks_node_type.smallest.id
-  kind          = "CLASSIC_PREVIEW"
 
-  # Configures Dedicated Mode for a Single User to bypass NO_ISOLATION
-  data_security_mode = "SINGLE_USER"
-  single_user_name   = "newsun_a@yahoo.com" # Required for SINGLE_USER mode
+  # MUST come before is_single_node
+  kind = "SINGLE_NODE"
 
-  # Enforces a true Single-Node configuration (1 physical machine)
+  # Single-node cluster
   is_single_node = true
   num_workers    = 0
+
+  # UC-compliant shared mode
+  data_security_mode = "USER_ISOLATION"
 
   autotermination_minutes = var.cluster_autotermination_minutes
 
@@ -29,6 +31,6 @@ resource "databricks_cluster" "single_node_dev" {
 
   custom_tags = {
     Environment = "dev"
-    Owner       = "Surya"
+    Owner       = "newsun"
   }
 }

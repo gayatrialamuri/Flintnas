@@ -1,68 +1,52 @@
-variable "databricks_host" {
-  description = "Azure Databricks workspace URL (no trailing slash)."
+variable "subscription_id" {
   type        = string
-}
-
-variable "databricks_token" {
-  description = "Databricks personal access token."
-  type        = string
-  sensitive   = true
-}
-
-variable "cluster_name" {
-  description = "Cluster name."
-  type        = string
-  default     = "dev-single-node"
-}
-
-variable "cluster_autotermination_minutes" {
-  description = "Minutes of inactivity before auto-termination."
-  type        = number
-  default     = 30
-}
-
-variable "cluster_data_security_mode" {
-  description = "Data security mode (e.g. NONE, SINGLE_USER, USER_ISOLATION)."
-  type        = string
-  default     = "NONE"
-}
-
-variable "cluster_spark_version" {
-  description = "Databricks runtime version (or use data source for latest LTS)."
-  type        = string
-  default     = "14.3.x-scala2.12"
-}
-
-variable "cluster_node_type" {
-  description = "Node type for driver/worker."
-  type        = string
-  # For free/cheap: pick a small SKU available in your region
-  default = "Standard_DS3_v2"
+  description = "Azure subscription ID"
 }
 
 variable "client_id" {
-  description = "Azure AD client ID"
+  description = "Azure AD Service Principal Client ID"
   type        = string
 }
 
 variable "client_secret" {
-  description = "Azure AD client secret"
+  description = "Azure AD Service Principal Client Secret"
   type        = string
   sensitive   = true
 }
 
 variable "tenant_id" {
-  description = "Azure AD tenant ID"
+  description = "Azure AD Tenant ID"
   type        = string
 }
 
 variable "storage_account_name" {
-  description = "Azure Storage account name"
+  description = "Name of the ADLS Gen2 storage account"
   type        = string
-  default     = "devadls"
 }
 
 variable "key_vault_name" {
-  description = "Name of the Key Vault."
+  description = "Name of the Azure Key Vault"
   type        = string
+}
+
+variable "cluster_name" {
+  description = "Name of the Databricks cluster"
+  type        = string
+  default     = "single-node-dev"
+}
+
+variable "cluster_autotermination_minutes" {
+  description = "Cluster auto-termination time"
+  type        = number
+  default     = 20
+}
+
+variable "terraform_spn_object_id" {
+  type        = string
+  description = "Object ID of the Terraform Service Principal"
+}
+
+variable "postgres_server_name" {
+  type        = string
+  description = "Name of the PostgreSQL server"
 }

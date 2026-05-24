@@ -1,37 +1,37 @@
-resource "azurerm_resource_group" "databricks_rg" {
-  name     = "rg-databricks-dev"
-  location = "centralus"
+module "infra" {
+  source = "./infra"
+
+  storage_account_name      = var.storage_account_name
+  key_vault_name            = var.key_vault_name
+  tenant_id                 = var.tenant_id
+  terraform_spn_object_id   = var.terraform_spn_object_id
+  postgres_server_name      = var.postgres_server_name
 }
 
-# Databricks workspace
-resource "azurerm_databricks_workspace" "this" {
-  name                = "dbw-flintnas-dev"
-  resource_group_name = azurerm_resource_group.databricks_rg.name
-  location            = azurerm_resource_group.databricks_rg.location
-  sku                 = "premium"
-}
-
-# Managed Identity for jobs
-resource "azurerm_user_assigned_identity" "databricks_job_mi" {
-  name                = "dbrx-job-mi"
-  resource_group_name = azurerm_resource_group.databricks_rg.name
-  location            = azurerm_resource_group.databricks_rg.location
-}
-
-# ADLS + Key Vault + Secret Scope module
 module "data_platform" {
   source = "./modules/data-platform"
 
-  resource_group_name = azurerm_resource_group.databricks_rg.name
-  location            = azurerm_resource_group.databricks_rg.location
+  resource_group_name = module.infra.resource_group_name
+  location            = module.infra.location
 
   storage_account_name = var.storage_account_name
   key_vault_name       = var.key_vault_name
 
-  raw_container_name     = "raw"
-  curated_container_name = "curated"
+  raw_container_name      = "raw"
+  curated_container_name  = "curated"
+  semantic_container_name = "semantic"
 
-  databricks_workspace_url = azurerm_databricks_workspace.this.workspace_url
+  secrets_reader_object_id = module.infra.job_identity_principal_id
+}
 
-  secrets_reader_object_id = azurerm_user_assigned_identity.databricks_job_mi.principal_id
+module "databricks" {
+  source = "./databricks"
+
+  cluster_autotermination_minutes = var.cluster_autotermination_minutes
+  client_id                       = var.client_id
+  cluster_name                    = var.cluster_name
+  workspace_url = module.infra.databricks_workspace_url
+  workspace_id  = module.infra.databricks_workspace_id
+  key_vault_id  = module.infra.key_vault_id
+  key_vault_uri = module.infra.key_vault_uri
 }
